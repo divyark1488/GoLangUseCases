@@ -1,0 +1,139 @@
+// Use case 1 : NSP Product Family Map
+// *******************************
+// Create a  Map for Product family : "key being family name","values being list of node types"
+
+// for eg : SR family : 7750,7450,7950
+
+// tasks to perform :
+
+// 1. Print family -> nodes
+// 2. Add new Family
+// 3. Check if a family contains a node and add if it doesn't (eg if 7250 is present SR or not )
+// 4. Delete if a node is depricated
+
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+
+	//Step 1 : Create a map of string to slice
+	productFamilyMap := make(map[string][]string)
+
+	// Step2: Try to add one key value pair to the map
+
+	productFamilyMap["SR"] = []string{"7750", "7450", "7950"}
+	productFamilyMap["IPEdge"] = []string{"7210"}
+
+	//fmt.Println("Map is ", productFamilyMap)
+
+	//Step3 : To print in the format Family -> list of Nodes
+	fmt.Println("*******Printing Intial Map******")
+	printMap(productFamilyMap)
+
+	//Step 4 : To check if a Family Contains a node and add it it doesnt exist
+	// Say we want to add "Omni" node to the IPEdge Family
+
+	fmt.Println("Enter the Product Family and the Node to be added:")
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	fmt.Println("Input is ", strings.TrimSpace(input))
+	//Consider space as seperator for Product Family and Node to be added
+	addNodeToProductFamilyMap(input, productFamilyMap)
+	fmt.Println("*********Printing Map After Additon*********")
+
+	fmt.Println("Enter the Product Family and Node to be deleted: ")
+
+	input1, _ := reader.ReadString('\n')
+	input1 = strings.TrimSpace(input1)
+	//Step 5 : to delete a Node/Product Family
+	removeNodeOrProductFamilyMap(input1, productFamilyMap)
+
+}
+
+func printMap(productFamilyMap map[string][]string) {
+	for key, val := range productFamilyMap {
+		fmt.Println("ProductFamily Name - ", key, " : Nodes ", val)
+	}
+}
+
+func addNodeToProductFamilyMap(input string, productFamilyMap map[string][]string) {
+	inputs := strings.Fields(input)
+	fmt.Println("Product Family : ", inputs[0], "Node to be added: ", inputs[1])
+
+	// get the Node list from product family, if doesnt exist need to add as first node in the family
+	prodFamily := inputs[0]
+	node := inputs[1]
+	_, ok := productFamilyMap[prodFamily]
+	if ok == true {
+		fmt.Println("ProductFamily is Present")
+
+		//You cannot take the address of map entries.  Also, you cannot call pointer methods on map entries.
+		//below is not possible
+		//listofNodes := &(productFamilyMap[prodFamily])
+		//append(*listofNodes, node)
+		listofNodes := productFamilyMap[prodFamily]
+		listofNodes = append(listofNodes, node)
+		productFamilyMap[prodFamily] = listofNodes
+		//fmt.Printf("Type of the list is %T", listofNodes)
+		//fmt.Println("val and node", val, node)
+	} else {
+		fmt.Println("ProductFamily is Not Present")
+		//Need to add as new key-value pair
+		productFamilyMap[prodFamily] = []string{node}
+	}
+}
+
+func removeNodeOrProductFamilyMap(input string, productFamilyMap map[string][]string) {
+
+	// two cases to handle in removal
+	// a: if only Node has to be removed ?  what if it was the only node in the family then remove the family also
+	// b: to remove the Product family
+
+	inputs := strings.Fields(input)
+	fmt.Println("Product Family : ", inputs[0], "Node to be deleted: ", inputs[1])
+
+	// get the Node list from product family, if doesnt exist need to add as first node in the family
+	prodFamily := inputs[0]
+	node := inputs[1]
+
+	_, ok := productFamilyMap[prodFamily]
+	if ok == true {
+		fmt.Println("ProductFamily is Present")
+		listofNodes := productFamilyMap[prodFamily]
+		// to delete we need to slice from the slice for which we need the position of the Node
+		pos := findPosofEleSlice(&listofNodes, node)
+		if pos != -1 {
+			listofNodes = append(listofNodes[:pos], listofNodes[pos+1:]...)
+			if len(listofNodes) == 0 {
+				//remove the key : prod family
+				delete(productFamilyMap, prodFamily)
+			} else {
+				productFamilyMap[prodFamily] = listofNodes
+			}
+		}
+
+		//now if listsize is 0? delete prod family
+
+	}
+}
+
+func findPosofEleSlice(p *[]string, val string) int {
+
+	pos := -1
+
+	for i := range *p {
+		if (*p)[i] == val {
+			pos = i
+		}
+	}
+
+	return pos
+
+}
