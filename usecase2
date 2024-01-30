@@ -1,0 +1,133 @@
+// To have two structs defined : "NSPEvent" & "OrganizingTeam"
+
+// "NSPEvent" should have "OrganizingTeam" Embedded/Nested
+// Other features can be :
+
+// NSPEvent:
+// =========
+// Event date,
+// Event name,
+// PrimaryContact(Can be outside the OrganizingTeam/Funteam)
+
+// OrganizingTeam:
+// =============
+// TeamMembers -> slice
+// PrimaryContact(has to be within the Funteam)
+package main
+
+import "fmt"
+
+type NspEvent struct {
+	eventDate            string
+	eventName            string
+	primaryContactName   string
+	primaryContactNumber string
+	team                 OrganizingTeam
+}
+
+type OrganizingTeam struct {
+	teamMembers          []string
+	primaryContactName   string
+	primaryContactNumber string
+}
+
+func main() {
+	fmt.Println("******Welcome to useCase2*******")
+	var eventName string
+	var newTeamMemberName string
+	//Step1
+	//Create struct type values
+	event1_2024 := NspEvent{
+		eventDate:            "23/01/2024",
+		eventName:            "Sankranthi",
+		primaryContactName:   "Sowjanya",
+		primaryContactNumber: "1111111111",
+		team: OrganizingTeam{
+			teamMembers: []string{
+				"Giri",
+				"Sahana",
+				"Vybhav",
+				"Shruthi",
+				"Sowjanya",
+			},
+			primaryContactName:   "Shruthi",
+			primaryContactNumber: "9999999999",
+		},
+	}
+
+	//step 2 : add one more Event : Eid Party with different set of Orgnanizing members
+	event2_2024 := NspEvent{
+		eventDate:            "16/04/2024",
+		eventName:            "EidParty",
+		primaryContactName:   "Javeed",
+		primaryContactNumber: "2222222222",
+		team: OrganizingTeam{
+			teamMembers: []string{
+				"Umesan",
+				"Jubin",
+				"Sunny",
+				"Deepak",
+				"Sowjanya",
+			},
+			primaryContactName:   "Umesan",
+			primaryContactNumber: "5555555555",
+		},
+	}
+
+	event3_2024 := NspEvent{
+		eventDate:            "27/06/2024",
+		eventName:            "TeamOuting",
+		primaryContactName:   "Manjunath",
+		primaryContactNumber: "6666666666",
+		team: OrganizingTeam{
+			teamMembers: []string{
+				"Rakesh",
+				"Yeshwanth",
+				"Soundarya",
+				"Sowjanya",
+			},
+			primaryContactName:   "Rakesh",
+			primaryContactNumber: "8888888888",
+		},
+	}
+	fmt.Println("Printing the NSP Event Details")
+	event1_2024.printNSPEvent()
+	event2_2024.printNSPEvent()
+	event3_2024.printNSPEvent()
+	//step2 : Add a Team member to the organizing Team of an event
+	// Ask from the User to which event he/she wants to add the team member to
+	fmt.Printf("Lets add you in as Team member, please enter the details below: Event Name, Team member name:\n")
+	fmt.Scan(&eventName, &newTeamMemberName)
+	fmt.Printf("You want to add to %v event, the new member %v", eventName, newTeamMemberName)
+
+	add(eventName, newTeamMemberName, event1_2024, event2_2024, event3_2024)
+
+}
+
+//func add(eventName string, newTeamMemberName string, NspEvent ...events) {
+func add(eventName string, newTeamMemberName string, events ...NspEvent) {
+
+	fmt.Printf("\nAdd func\n")
+	var event NspEvent
+	for _, event = range events {
+		if event.eventName == eventName {
+			event.team.teamMembers = append(event.team.teamMembers, newTeamMemberName)
+			fmt.Printf("Added %v to %v succesfully ", event.eventName, newTeamMemberName)
+			event.printNSPEvent()
+		}
+	}
+
+}
+func (event *NspEvent) printNSPEvent() {
+	fmt.Printf("\n****Upcoming Event*****\n")
+	fmt.Printf("The %v Event Is Planned on %v\n", event.eventName, event.eventDate)
+	fmt.Printf("For the Details of Event,Please contact Primary Contact of Event : %v\n", event.primaryContactName)
+	fmt.Printf("If you want to contribute to the Event, Please get in touch with Primary Contact of  OrganizingTeam : %v\n", event.team.primaryContactName)
+	fmt.Printf("Check the List of Members in the organizing team before you want to get added into !!\n %v\n", event.team.teamMembers)
+
+}
+
+// func (team *NspEvent.OrganizingTeam) printOrganizingTeam() {
+// 	fmt.Printf("Primary contact of Organizing Team : %v", team.primaryContact)
+// 	fmt.Printf("List of Members in the organizing team are %v", team.OrganizingTeam)
+// }
